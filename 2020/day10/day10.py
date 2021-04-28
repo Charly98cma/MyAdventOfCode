@@ -1,85 +1,41 @@
- #!/usr/bin/python
+#!/usr/bin/python
+from collections import Counter, defaultdict
 import sys
-
-#2nd STAR SOLUTION
-class Node:
-    def __init__(self, value, left=None, center=None, right=None):
-        self.value = value
-        self.left = left
-        self.center = center
-        self.right = right
-
-
-    def treeLen(self):
-        treeL = 1
-        if self.left:
-            treeL = treeL + 1 + self.left.treeLen()
-        if self.right:
-            treeL = treeL + 1 + self.right.treeLen()
-        if self.center:
-            treeL = treeL + 1 + self.center.treeLen()
-        if self.left == None and self.center == None and self.right == None:
-            return 1
-        return treeL
-
-    def insert(self, data):
-        if self.value+1 == data:
-            if self.left is None:
-                self.left = Node(data)
-            else:
-                self.left = self.left.insert(data)
-        elif self.value+2 == data:
-            if self.center is None:
-                self.center = Node(data)
-            else:
-                self.center = self.center.insert(data)
-        else:
-            if self.right is None:
-                self.right = Node(data)
-            else:
-                self.right = self.right.insert(data)
-
-    # Print the tree
-    def printTree(self):
-        if self.left:
-            self.left.printTree()
-        print(self.value),
-        if self.center:
-            self.center.printTree()
-        if self.right:
-            self.right.printTree()
 
 
 def firstStar(adapters):
-    tree = Node(0)
-    outlet = 0
-    diffs = [0, 1]
-    treeL = 0
-    # 1st STAR SOLUTION
-    for x in range(len(adapters)):
-        if outlet == max(adapters)+3:
-            break
-        if outlet+1 in adapters:
-            outlet += 1
-            diffs[0] += 1
-        elif outlet+2 in adapters:
-            outlet += 2
-        elif outlet+3 in adapters:
-            outlet += 3
-            diffs[1] += 1
+    return [adapters[i] - adapters[i-1] for i in range(1, len(adapters))]
+
+
+def secondStar(diffs):
+    result = 1
+    counter = 0
+    # Number of 1 series that produce X lists (num_1 : num_lists)
+    mults = {2: 2, 3: 4, 4: 7, 5: 13}
+    # Default dictionary for numbers (integers)
+    resDict = defaultdict(int)
+    # Find the series of 1's on the diffs
+    for i in diffs:
+        if i == 1:
+            counter += 1
         else:
-            print("Error")
-            exit(1)
-        tree.insert(outlet)
-    return diffs, tree
+            if counter > 1:
+                resDict[counter] += 1
+            counter = 0
+    if counter > 1:
+        resDict[counter] += 1
+    # CAlculate the number of different lists
+    for i, j in dict(resDict).items():
+        result *= mults[i] ** j
+    return result
 
 
 def main():
-    adapters = [int(x) for x in open(sys.argv[1], 'r').read().split('\n')[:-1]]
-    diffs, tree = firstStar(adapters)
-    print("1st STAR SOLUTION ->", diffs[0]*diffs[1])
-    tree.printTree()
-    # print("2nd STAR SOLUTION ->", tree.treeLen())
+    adapters = [0] + sorted([int(x) for x in open(sys.argv[1], 'r').read().split('\n')[:-1]])
+    diffs = firstStar(adapters)
+    countDiffs = Counter(diffs)
+    print("1st STAR SOLUTION ->", countDiffs[1]*(countDiffs[3]+1))
+    print("2nd STAR SOLUTION ->", secondStar(diffs))
 
 if __name__ == "__main__":
     main()

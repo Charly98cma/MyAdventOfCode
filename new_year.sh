@@ -1,3 +1,4 @@
+#!/bin/bash
 YEAR=$(date +"%Y")
 if [[ $(find . -type d -iname $YEAR | grep $YEAR) -eq 1 ]]; then
     exit 0;
